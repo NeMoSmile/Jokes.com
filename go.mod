@@ -1,3 +1,3 @@
-module github.com/NeMoSmile/kley.git
+module github.com/NeMoSmile/Jokes.git
 
 go 1.20

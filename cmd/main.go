@@ -30,19 +30,6 @@ func registrHandler(w http.ResponseWriter, r *http.Request) {
 	email := r.FormValue("email")
 	password := r.FormValue("password")
 
-	if login == "admin" && password == "12345" {
-		// Если логин и пароль верны, ставим куки с именем пользователя
-		http.SetCookie(w, &http.Cookie{
-			Name:  "username",
-			Value: login,
-			Path:  "/",
-		})
-
-		// Перенаправляем пользователя на защищенную страницу
-		http.Redirect(w, r, "/user/", http.StatusFound)
-		return
-	}
-
 	// Если логин и пароль не верны, возвращаем пользователя на страницу авторизации
 	http.Redirect(w, r, "/login", http.StatusFound)
 }
