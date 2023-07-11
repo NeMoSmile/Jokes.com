@@ -10,8 +10,13 @@ import (
 )
 
 func StartLoginHandler(w http.ResponseWriter, r *http.Request) {
+	_, err := r.Cookie("username")
+	if err == nil {
+		http.Redirect(w, r, "/main", http.StatusFound)
+		return
+	}
 	tmpl := template.Must(template.ParseFiles("view/authentication/login.html"))
-	err := tmpl.Execute(w, nil)
+	err = tmpl.Execute(w, nil)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
@@ -35,7 +40,7 @@ func RegistrHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if d.Check(email, password) == 3 {
+	if d.Check(email, password) == 1 {
 		// Если логин и пароль верны, ставим куки с именем пользователя
 		http.SetCookie(w, &http.Cookie{
 			Name:     "username",
@@ -73,23 +78,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, "/login", http.StatusFound)
-}
-
-func MainHandler(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("username")
-	if err != nil {
-		http.Redirect(w, r, "/", http.StatusFound)
-		return
-	}
-	tmpl := template.Must(template.ParseFiles("view/authentication/main.html"))
-	err = tmpl.Execute(w, nil)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-	if cookie.Value != "yo" {
-		http.Redirect(w, r, "/what", http.StatusFound)
-	}
+	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 func WhatHandler(w http.ResponseWriter, r *http.Request) {
