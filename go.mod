@@ -1,3 +1,3 @@
-module github.com/NeMoSmile/Jokes.git
+module github.com/NeMoSmile/Jokes.com.git
 
 go 1.20
