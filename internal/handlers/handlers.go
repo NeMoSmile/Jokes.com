@@ -44,7 +44,7 @@ func RegistrHandler(w http.ResponseWriter, r *http.Request) {
 		// Если логин и пароль верны, ставим куки с именем пользователя
 		http.SetCookie(w, &http.Cookie{
 			Name:     "username",
-			Value:    name,
+			Value:    email,
 			Expires:  time.Now().Add(168 * time.Hour),
 			Path:     "/",
 			HttpOnly: true,
@@ -68,7 +68,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	if d.Check(email, password) == 1 {
 		http.SetCookie(w, &http.Cookie{
 			Name:     "username",
-			Value:    "yo",
+			Value:    email,
 			Expires:  time.Now().Add(168 * time.Hour),
 			Path:     "/",
 			HttpOnly: true,

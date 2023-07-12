@@ -14,22 +14,22 @@
         <th colspan="1" class="header">Today's Top Comedians</th>
       </tr>
       <tr>
-        <td class="content1">Comedian1: 100</td>
+        <td class="content1">{{.FirstPl}}</td>
       </tr>
       <tr>
-        <td class="content2">Comedian2: 75</td>
+        <td class="content2">{{.SecondPl}}</td>
       </tr>
       <tr>
-        <td class="content3">Comedian3: 60</td>
+        <td class="content3">{{.ThirdPl}}</td>
       </tr>
     </table>
   </div>
 
   <form action="/w" method="post">
   <div class="my-container">
-    <h2 class="my-title">You: NemoSmile</h2>
-    <p class="my-text">Today: 12 #25</p>
-    <p class="my-text">This Month: 43 #7</p><br><br>
+    <h2 class="my-title">{{.MyTitle}}</h2>
+    <p class="my-text1">{{.MyText1}}</p>
+    <p class="my-text2">{{.MyText2}}</p><br><br>
     <button>Your W</button>
   </div>
 </form>
