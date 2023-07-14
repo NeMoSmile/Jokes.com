@@ -20,5 +20,5 @@ func Start(port string) {
 	mux.HandleFunc("/what", h.WhatHandler)
 	mux.HandleFunc("/w", h.WHandler)
 
-	http.ListenAndServe(":"+port, mux)
+	http.ListenAndServe(port, mux)
 }

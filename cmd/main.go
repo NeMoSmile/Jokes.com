@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	s.Start("8080")
+	s.Start("samirtm2.beget.tech:80")
 }
