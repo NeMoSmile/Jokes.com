@@ -33,9 +33,22 @@
     </form>
     <div class="chat">
         <div id="messages" class="messages">
-            <!-- Existing messages will be inserted here -->
+            <div class="message incoming">
+                <div class="message-info">
+                    <span class="message-name">John Doe</span>
+                  </div>
+                <p>Hello, how are you?</p>
+                <button class="Wbutton" data-message="Hello, how are you?">W</button>
+              </div>
+              <div class="message outgoing">
+                <p>Hello, how are you?</p>
+                <div class="message-info">
+                    <span class="message-name">You</span>
+                  </div>
+              </div>
         </div>
-    </div>
+      </div>
+
     <div class="message-box">
         <input id="message-input" type="text" placeholder="...">
         <button id="send-button" onclick="sendMessage()">s</button>

@@ -1,5 +1,12 @@
 package database
 
+import (
+	"bytes"
+	"encoding/json"
+	"log"
+	"net/http"
+)
+
 type PData struct {
 	FirstPl  string
 	SecondPl string
@@ -7,38 +14,73 @@ type PData struct {
 	MyTitle  string
 	MyText1  string
 	MyText2  string
+	Email    string
 }
 
+var host string = "http://localhost:8080"
+
 func Check(email, pass string) int {
-	// data match: 1
-	// data does not match: 2
-	// No data: 3
-	return 1
+	// Создаем JSON-объект с данными email и pass
+	data := map[string]string{"email": email, "pass": pass}
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Отправляем POST-запрос на сервер
+	resp, err := http.Post(host+"/check", "application/json", bytes.NewBuffer(jsonData))
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	// Получаем ответ от сервера
+	var result int
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return result
 }
 
 func Append(email, pass, name string) {
+	// Создаем JSON-объект с данными email, pass и name
+	data := map[string]string{"email": email, "pass": pass, "name": name}
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		log.Fatal(err)
+	}
 
+	// Отправляем POST-запрос на сервер
+	resp, err := http.Post(host+"/append", "application/json", bytes.NewBuffer(jsonData))
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
 }
 
 func PageData(email string) PData {
-	firstPl := "Hubabuba"
-	secondPl := "p1hdu)jd"
-	thirdPl := "kapemo77"
-	firstPoints := "107"
-	secondPoints := "71"
-	thirdPoints := "44"
-	name := "NeMoSmile"
-	todayPoints := "12"
-	todayPlace := "49"
-	monthPoints := "46"
-	monthPlace := "32"
-	dat := PData{
-		FirstPl:  firstPl + ": " + firstPoints,
-		SecondPl: secondPl + ": " + secondPoints,
-		ThirdPl:  thirdPl + ": " + thirdPoints,
-		MyTitle:  "You: " + name,
-		MyText1:  "Today: " + todayPoints + " #" + todayPlace,
-		MyText2:  "This Month: " + monthPoints + " #" + monthPlace,
+	// Создаем JSON-объект с данными email
+	data := map[string]string{"email": email}
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		log.Fatal(err)
 	}
-	return dat
+
+	// Отправляем POST-запрос на сервер
+	resp, err := http.Post(host+"/pagedata", "application/json", bytes.NewBuffer(jsonData))
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	// Получаем ответ от сервера
+	var result PData
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return result
 }

@@ -1,9 +1,12 @@
+var email = "{{.Email}}";
+
 // Установка соединения WebSocket с сервером
 const socket = new WebSocket("ws://" + location.host + "/ws");
 
 // Обработчик события при открытии соединения
 socket.onopen = function (event) {
     console.log("WebSocket connection established");
+    handleMessageButtonClick();
 };
 
 // Обработчик события при закрытии соединения
@@ -21,9 +24,9 @@ socket.onmessage = function (event) {
     if (message.outgoing) {
         newMessage.className = "message outgoing";
         newMessage.innerHTML = `
-            <p>${message.text}</p>
+            <p style="background-color: #ff90b5">${message.text}</p>
             <div class="message-info">
-                <span class="message-name">You</span>
+                <span class="message-name">For you</span>
             </div>
         `;
     } else {
@@ -33,7 +36,7 @@ socket.onmessage = function (event) {
                 <span class="message-name">${message.username}</span>
             </div>
             <p>${message.text}</p>
-            <button class="Wbutton">W</button>
+            <button class="Wbutton" data-message="${message.text}">W</button>
         `;
     }
 
@@ -42,12 +45,8 @@ socket.onmessage = function (event) {
 };
 
 
-// Обработчик события при нажатии кнопки "W"
-document.getElementsByClassName("Wbutton").addEventListener("click", function (event) {
-    event.preventDefault();
-
-    alert("W button clicked!");
-});
+  
+  
 
 // Код выше добавляет обработчики событий для отправки и получения сообщений чата на клиентской стороне. Когда пользователь отправляет новое сообщение, оно отправляется с использованием WebSocket на сервер, а затем сервер отправляет сообщение всем подключенным клиентам, которые показывают его на своих страницах.
 
@@ -65,8 +64,9 @@ function sendMessage() {
     // Проверяем, что текст сообщения не пустой
     if (text.trim() !== "" && text.length < 1500) {
         const message = {
-            text: text,
-            outgoing: true  // Устанавливаем флаг исходящего сообщения
+            message: text,
+            email: email,
+            outgoing: true,  // Устанавливаем флаг исходящего сообщения
         };
 
         // Отправляем сообщение на сервер
@@ -87,3 +87,26 @@ function sendMessage() {
         messagesContainer.appendChild(newMessage);
     }
   }
+
+
+  function handleMessageButtonClick() {
+    // Получение кнопок
+    let buttons = document.querySelectorAll('.Wbutton');
+  
+    buttons.forEach(function(button) {
+        button.addEventListener('click', function() {
+            let message = this.dataset.message;
+
+            const data = {
+                message: message,
+                email: email, // Замените на получение email пользователя
+                outgoing: false,
+              };
+            // Отправка данных на сервер
+            socket.send(JSON.stringify(data));
+
+            // Скрытие кнопки
+            this.style.display = 'none';
+        });
+    });
+}
