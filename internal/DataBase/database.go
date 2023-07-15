@@ -84,3 +84,28 @@ func PageData(email string) PData {
 
 	return result
 }
+
+func WData(email string) []string {
+	// Создаем JSON-объект с данными email
+	data := map[string]string{"email": email}
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Отправляем POST-запрос на сервер
+	resp, err := http.Post(host+"/wdata", "application/json", bytes.NewBuffer(jsonData))
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	// Получаем ответ от сервера
+	var result []string
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return result
+}

@@ -95,14 +95,84 @@ func WhatHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func WHandler(w http.ResponseWriter, r *http.Request) {
-	_, err := r.Cookie("username")
+	cookie, err := r.Cookie("username")
 	if err != nil {
 		http.Redirect(w, r, "/", http.StatusFound)
 		return
 	}
-	tmpl := template.Must(template.ParseFiles("view/view/w.html"))
+
+	email := cookie.Value
+
+	var allW []string = d.WData(email)
+
+	pageContent := `
+	<!DOCTYPE html>
+	<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>W</title>
+		<style>
+			body {
+				text-align: center;
+				font-size: 30px;
+				width: 100%;
+				display: flex;
+				justify-content: center;
+			}
+			
+			.content {
+				position: fixed;
+				top: 1%;
+				right: 15%;
+				height: 97%;
+				width: 70%;
+				border: 1px solid #ddd;
+				border-radius: 10px;
+				overflow: hidden;
+				box-shadow: 0 2px 10px 0 rgba(255, 214, 247, 0.868);
+			}
+			
+			.content ul {
+				list-style-type: none;
+				padding: 20px;
+				margin: 0;
+				overflow-y: scroll;
+				height: 100%; 
+			}
+			
+			.content li {
+				background-color: #e4ffe3;
+				border-radius: 10px;
+				padding: 20px;
+				margin-bottom: 20px;
+				font-weight: 300; 
+			}
+		</style>
+	</head>
+	<body>
+		<div class="content">
+			<ul>
+				<li>Hello, how are you?</li>`
+	for _, element := range allW {
+		pageContent += "<li>" + element + "</li>"
+	}
+	pageContent += `
+	</ul>
+</div>
+
+</body>
+</html>
+`
+	tmpl := template.New("w.html")
+	tmpl, err = tmpl.Parse(pageContent)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	err = tmpl.Execute(w, nil)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+
 }
