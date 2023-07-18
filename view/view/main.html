@@ -4,9 +4,14 @@
     <meta charset="UTF-8">
     <title>Jokes.com</title>
     <link rel="stylesheet" type="text/css" href="/static/styles.css">
+    <script>
+        var email = "{{.Email}}";
+      </script>
+      
     <script src="/static/scripts.js"></script>
 </head>
 <body>
+    <div id="emailData" data-email="{{.Email}}"></div>
     <div class="table-container">
         <table>
             <tr>
@@ -33,19 +38,6 @@
     </form>
     <div class="chat">
         <div id="messages" class="messages">
-            <div class="message incoming">
-                <div class="message-info">
-                    <span class="message-name">John Doe</span>
-                  </div>
-                <p>Hello, how are you?</p>
-                <button class="Wbutton" data-message="Hello, how are you?">W</button>
-              </div>
-              <div class="message outgoing">
-                <p>Hello, how are you?</p>
-                <div class="message-info">
-                    <span class="message-name">You</span>
-                  </div>
-              </div>
         </div>
       </div>
 

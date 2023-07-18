@@ -1,12 +1,9 @@
-var email = "{{.Email}}";
-
 // Установка соединения WebSocket с сервером
-const socket = new WebSocket("ws://" + location.host + "/ws");
+const socket = new WebSocket("ws://" + "localhost:8081" + "/ws");
 
 // Обработчик события при открытии соединения
 socket.onopen = function (event) {
     console.log("WebSocket connection established");
-    handleMessageButtonClick();
 };
 
 // Обработчик события при закрытии соединения
@@ -21,12 +18,20 @@ socket.onmessage = function (event) {
     const newMessage = document.createElement("div");
 
     // Проверяем, является ли сообщение исходящим (от текущего пользователя)
-    if (message.outgoing) {
+    if (message.err) {
         newMessage.className = "message outgoing";
         newMessage.innerHTML = `
             <p style="background-color: #ff90b5">${message.text}</p>
             <div class="message-info">
                 <span class="message-name">For you</span>
+            </div>
+        `;
+    } else if (message.outgoing) {
+        newMessage.className = "message outgoing";
+        newMessage.innerHTML = `
+            <p style="background-color: #89dcf5">${message.text}</p>
+            <div class="message-info">
+                <span class="message-name">You</span>
             </div>
         `;
     } else {
@@ -42,11 +47,12 @@ socket.onmessage = function (event) {
 
     // Добавляем новое сообщение в контейнер
     messagesContainer.appendChild(newMessage);
+    handleMessageButtonClick();
 };
 
 
-  
-  
+
+
 
 // Код выше добавляет обработчики событий для отправки и получения сообщений чата на клиентской стороне. Когда пользователь отправляет новое сообщение, оно отправляется с использованием WebSocket на сервер, а затем сервер отправляет сообщение всем подключенным клиентам, которые показывают его на своих страницах.
 
@@ -62,7 +68,7 @@ function sendMessage() {
     const text = messageInput.value;
 
     // Проверяем, что текст сообщения не пустой
-    if (text.trim() !== "" && text.length < 1500) {
+    if (text.trim() !== "") {
         const message = {
             message: text,
             email: email,
@@ -74,34 +80,23 @@ function sendMessage() {
 
         // Очищаем поле ввода сообщения
         messageInput.value = "";
-        
-        const messagesContainer = document.getElementById("messages");
-        const newMessage = document.createElement("div");
-        newMessage.className = "message outgoing";
-        newMessage.innerHTML = `
-            <p>${text}</p>
-            <div class="message-info">
-                <span class="message-name">You</span>
-            </div>
-        `;
-        messagesContainer.appendChild(newMessage);
     }
-  }
+}
 
 
-  function handleMessageButtonClick() {
+function handleMessageButtonClick() {
     // Получение кнопок
     let buttons = document.querySelectorAll('.Wbutton');
-  
-    buttons.forEach(function(button) {
-        button.addEventListener('click', function() {
+
+    buttons.forEach(function (button) {
+        button.addEventListener('click', function () {
             let message = this.dataset.message;
 
             const data = {
                 message: message,
-                email: email, // Замените на получение email пользователя
+                email: email,
                 outgoing: false,
-              };
+            };
             // Отправка данных на сервер
             socket.send(JSON.stringify(data));
 
@@ -110,3 +105,17 @@ function sendMessage() {
         });
     });
 }
+
+
+
+const messagesContainer = document.getElementById("messages");
+const newMessage = document.createElement("div");
+newMessage.className = "message incoming";
+newMessage.innerHTML = `
+            <div class="message-info">
+                <span class="message-name">${message.username}</span>
+            </div>
+            <p>${message.text}</p>
+            <button class="Wbutton" data-message="${message.text}">W</button>
+        `;
+messagesContainer.appendChild(newMessage);

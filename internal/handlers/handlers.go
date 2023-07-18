@@ -148,6 +148,10 @@ func WHandler(w http.ResponseWriter, r *http.Request) {
 				font-weight: 300; 
 			}
 		</style>
+		<script>document.addEventListener('DOMContentLoaded', function () {
+			const url = window.location.href;
+			window.history.replaceState(null, null, url);
+		});</script>
 	</head>
 	<body>
 		<div class="content">

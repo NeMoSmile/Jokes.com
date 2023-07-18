@@ -17,20 +17,20 @@ type PData struct {
 	Email    string
 }
 
-var host string = "http://localhost:8080"
+var host string = "http://localhost:8081"
 
 func Check(email, pass string) int {
 	// Создаем JSON-объект с данными email и pass
 	data := map[string]string{"email": email, "pass": pass}
 	jsonData, err := json.Marshal(data)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	// Отправляем POST-запрос на сервер
 	resp, err := http.Post(host+"/check", "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	defer resp.Body.Close()
 
@@ -38,7 +38,7 @@ func Check(email, pass string) int {
 	var result int
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	return result
@@ -49,13 +49,13 @@ func Append(email, pass, name string) {
 	data := map[string]string{"email": email, "pass": pass, "name": name}
 	jsonData, err := json.Marshal(data)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	// Отправляем POST-запрос на сервер
 	resp, err := http.Post(host+"/append", "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	defer resp.Body.Close()
 }
@@ -65,13 +65,13 @@ func PageData(email string) PData {
 	data := map[string]string{"email": email}
 	jsonData, err := json.Marshal(data)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	// Отправляем POST-запрос на сервер
 	resp, err := http.Post(host+"/pagedata", "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	defer resp.Body.Close()
 
@@ -79,7 +79,7 @@ func PageData(email string) PData {
 	var result PData
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	return result
@@ -90,13 +90,13 @@ func WData(email string) []string {
 	data := map[string]string{"email": email}
 	jsonData, err := json.Marshal(data)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	// Отправляем POST-запрос на сервер
 	resp, err := http.Post(host+"/wdata", "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	defer resp.Body.Close()
 
@@ -104,7 +104,7 @@ func WData(email string) []string {
 	var result []string
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	return result
