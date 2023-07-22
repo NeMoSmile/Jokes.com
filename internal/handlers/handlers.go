@@ -35,12 +35,12 @@ func RegistrHandler(w http.ResponseWriter, r *http.Request) {
 	email := r.FormValue("email")
 	password := r.FormValue("password")
 
-	if len(name) > 12 || strings.Contains(password, " ") {
+	if len(name) > 12 || strings.Contains(password, " ") || len(password) < 5 || len(password) > 110 || len(email) > 100 {
 		http.Redirect(w, r, "/registr", http.StatusFound)
 		return
 	}
 
-	if d.Check(email, password) == 1 {
+	if d.Check(email, password) == 3 {
 		// Если логин и пароль верны, ставим куки с именем пользователя
 		http.SetCookie(w, &http.Cookie{
 			Name:     "username",
@@ -64,8 +64,8 @@ func RegistrHandler(w http.ResponseWriter, r *http.Request) {
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	email := r.FormValue("email")
 	password := r.FormValue("password")
-
-	if d.Check(email, password) == 1 {
+	ch := d.Check(email, password)
+	if ch == 1 {
 		http.SetCookie(w, &http.Cookie{
 			Name:     "username",
 			Value:    email,
@@ -75,6 +75,10 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		})
 
 		http.Redirect(w, r, "/main", http.StatusFound)
+		return
+	}
+	if ch == 3 {
+		http.Redirect(w, r, "/registr", http.StatusFound)
 		return
 	}
 
