@@ -20,21 +20,18 @@ type PData struct {
 var host string = "http://localhost:8081"
 
 func Check(email, pass string) int {
-	// Создаем JSON-объект с данными email и pass
 	data := map[string]string{"email": email, "pass": pass}
 	jsonData, err := json.Marshal(data)
 	if err != nil {
 		log.Println(err)
 	}
 
-	// Отправляем POST-запрос на сервер
 	resp, err := http.Post(host+"/check", "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		log.Println(err)
 	}
 	defer resp.Body.Close()
 
-	// Получаем ответ от сервера
 	var result int
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	if err != nil {
@@ -45,14 +42,12 @@ func Check(email, pass string) int {
 }
 
 func Append(email, pass, name string) {
-	// Создаем JSON-объект с данными email, pass и name
 	data := map[string]string{"email": email, "pass": pass, "name": name}
 	jsonData, err := json.Marshal(data)
 	if err != nil {
 		log.Println(err)
 	}
 
-	// Отправляем POST-запрос на сервер
 	resp, err := http.Post(host+"/append", "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		log.Println(err)
@@ -61,21 +56,18 @@ func Append(email, pass, name string) {
 }
 
 func PageData(email string) PData {
-	// Создаем JSON-объект с данными email
 	data := map[string]string{"email": email}
 	jsonData, err := json.Marshal(data)
 	if err != nil {
 		log.Println(err)
 	}
 
-	// Отправляем POST-запрос на сервер
 	resp, err := http.Post(host+"/pagedata", "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		log.Println(err)
 	}
 	defer resp.Body.Close()
 
-	// Получаем ответ от сервера
 	var result PData
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	if err != nil {
@@ -86,21 +78,18 @@ func PageData(email string) PData {
 }
 
 func WData(email string) []string {
-	// Создаем JSON-объект с данными email
 	data := map[string]string{"email": email}
 	jsonData, err := json.Marshal(data)
 	if err != nil {
 		log.Println(err)
 	}
 
-	// Отправляем POST-запрос на сервер
 	resp, err := http.Post(host+"/wdata", "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		log.Println(err)
 	}
 	defer resp.Body.Close()
 
-	// Получаем ответ от сервера
 	var result []string
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	if err != nil {

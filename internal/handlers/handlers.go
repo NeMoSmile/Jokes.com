@@ -35,13 +35,12 @@ func RegistrHandler(w http.ResponseWriter, r *http.Request) {
 	email := r.FormValue("email")
 	password := r.FormValue("password")
 
-	if len(name) > 12 || strings.Contains(password, " ") || len(password) < 5 || len(password) > 110 || len(email) > 100 {
-		http.Redirect(w, r, "/registr", http.StatusFound)
+	if len(name) > 15 || strings.Contains(password, " ") || len(password) > 110 || len(email) > 100 {
+		http.Redirect(w, r, "/errorregistr", http.StatusFound)
 		return
 	}
 
 	if d.Check(email, password) == 3 {
-		// Если логин и пароль верны, ставим куки с именем пользователя
 		http.SetCookie(w, &http.Cookie{
 			Name:     "username",
 			Value:    email,
@@ -52,13 +51,11 @@ func RegistrHandler(w http.ResponseWriter, r *http.Request) {
 
 		d.Append(email, password, name)
 
-		// Перенаправляем пользователя на защищенную страницу
 		http.Redirect(w, r, "/main", http.StatusFound)
 		return
 	}
+	http.Redirect(w, r, "/", http.StatusFound)
 
-	// Если логин и пароль не верны, возвращаем пользователя на страницу авторизации
-	http.Redirect(w, r, "/registr", http.StatusFound)
 }
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
@@ -79,6 +76,10 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	if ch == 3 {
 		http.Redirect(w, r, "/registr", http.StatusFound)
+		return
+	}
+	if ch == 2 {
+		http.Redirect(w, r, "/errorlogin", http.StatusFound)
 		return
 	}
 
@@ -160,7 +161,7 @@ func WHandler(w http.ResponseWriter, r *http.Request) {
 	<body>
 		<div class="content">
 			<ul>
-				<li>Hello, how are you?</li>`
+				`
 	for _, element := range allW {
 		pageContent += "<li>" + element + "</li>"
 	}
@@ -183,4 +184,25 @@ func WHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
+}
+
+func ErrorLoginHandler(w http.ResponseWriter, r *http.Request) {
+	_, err := r.Cookie("username")
+	if err == nil {
+		http.Redirect(w, r, "/main", http.StatusFound)
+		return
+	}
+	tmpl := template.Must(template.ParseFiles("view/authentication/errlogin.html"))
+	err = tmpl.Execute(w, nil)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func ErrorRegistrHandler(w http.ResponseWriter, r *http.Request) {
+	tmpl := template.Must(template.ParseFiles("view/authentication/erregistration.html"))
+	err := tmpl.Execute(w, nil)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
