@@ -55,7 +55,7 @@ function sendMessage() {
     if (text.trim() !== "") {
         const message = {
             message: text,
-            email: email,
+            id: id,
             outgoing: true, 
         };
 
@@ -75,7 +75,7 @@ function handleMessageButtonClick() {
 
             const data = {
                 message: message,
-                email: email,
+                id: id,
                 outgoing: false,
             };
             socket.send(JSON.stringify(data));

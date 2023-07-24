@@ -37,5 +37,9 @@ func Start(port string) {
 
 	mux.HandleFunc("/errorregistr", h.ErrorRegistrHandler)
 
+	mux.HandleFunc("/conf", h.StartConfirmHandler)
+
+	mux.HandleFunc("/confirm", h.ConfirmHandler)
+
 	http.ListenAndServe(port, mux)
 }

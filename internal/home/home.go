@@ -1,6 +1,7 @@
 package home
 
 import (
+	"fmt"
 	"net/http"
 	"text/template"
 
@@ -8,17 +9,20 @@ import (
 )
 
 func MainHandler(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("username")
+	cookie, err := r.Cookie("id")
 	if err != nil {
 		http.Redirect(w, r, "/", http.StatusFound)
 		return
 	}
-
-	email := cookie.Value
+	id := cookie.Value
+	if !d.CheckUser(id) {
+		http.Redirect(w, r, "/", http.StatusFound)
+		return
+	}
 
 	tmpl := template.Must(template.ParseFiles("view/view/main.html"))
-	err = tmpl.Execute(w, d.PageData(email))
+	err = tmpl.Execute(w, d.PageData(id))
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		fmt.Println(err)
 	}
 }

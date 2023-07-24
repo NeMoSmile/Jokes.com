@@ -1,7 +1,10 @@
 package handlers
 
 import (
+	"encoding/json"
+	"log"
 	"net/http"
+	"net/url"
 	"strings"
 	"text/template"
 	"time"
@@ -9,11 +12,19 @@ import (
 	d "github.com/NeMoSmile/Jokes.com.git/internal/DataBase"
 )
 
+type User struct {
+	Email    string `json:"email"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
 func StartLoginHandler(w http.ResponseWriter, r *http.Request) {
-	_, err := r.Cookie("username")
+	cookie, err := r.Cookie("id")
 	if err == nil {
-		http.Redirect(w, r, "/main", http.StatusFound)
-		return
+		if d.CheckUser(cookie.Value) {
+			http.Redirect(w, r, "/main", http.StatusFound)
+			return
+		}
 	}
 	tmpl := template.Must(template.ParseFiles("view/authentication/login.html"))
 	err = tmpl.Execute(w, nil)
@@ -41,18 +52,33 @@ func RegistrHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if d.Check(email, password) == 3 {
+
+		user := User{
+			Email:    email,
+			Username: name,
+			Password: password,
+		}
+
+		userJSON, err := json.Marshal(user)
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		http.SetCookie(w, &http.Cookie{
-			Name:     "username",
-			Value:    email,
-			Expires:  time.Now().Add(168 * time.Hour),
+			Name:     "user",
+			Value:    url.QueryEscape(string(userJSON)),
+			Expires:  time.Now().Add(1 * time.Hour),
 			Path:     "/",
 			HttpOnly: true,
 		})
 
-		d.Append(email, password, name)
-
-		http.Redirect(w, r, "/main", http.StatusFound)
+		http.Redirect(w, r, "/conf", http.StatusFound)
 		return
+
+		// d.Append(email, password, name)
+
+		// http.Redirect(w, r, "/main", http.StatusFound)
+		// return
 	}
 	http.Redirect(w, r, "/", http.StatusFound)
 
@@ -63,9 +89,10 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	password := r.FormValue("password")
 	ch := d.Check(email, password)
 	if ch == 1 {
+		id := d.GetId(email)
 		http.SetCookie(w, &http.Cookie{
-			Name:     "username",
-			Value:    email,
+			Name:     "id",
+			Value:    id,
 			Expires:  time.Now().Add(168 * time.Hour),
 			Path:     "/",
 			HttpOnly: true,
@@ -87,11 +114,16 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func WhatHandler(w http.ResponseWriter, r *http.Request) {
-	_, err := r.Cookie("username")
+	cookie, err := r.Cookie("id")
 	if err != nil {
 		http.Redirect(w, r, "/", http.StatusFound)
 		return
 	}
+	if !d.CheckUser(cookie.Value) {
+		http.Redirect(w, r, "/", http.StatusFound)
+		return
+	}
+
 	tmpl := template.Must(template.ParseFiles("view/view/what.html"))
 	err = tmpl.Execute(w, nil)
 	if err != nil {
@@ -100,15 +132,18 @@ func WhatHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func WHandler(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("username")
+	cookie, err := r.Cookie("id")
 	if err != nil {
 		http.Redirect(w, r, "/", http.StatusFound)
 		return
 	}
+	id := cookie.Value
+	if !d.CheckUser(id) {
+		http.Redirect(w, r, "/", http.StatusFound)
+		return
+	}
 
-	email := cookie.Value
-
-	var allW []string = d.WData(email)
+	var allW []string = d.WData(id)
 
 	pageContent := `
 	<!DOCTYPE html>
@@ -187,10 +222,12 @@ func WHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func ErrorLoginHandler(w http.ResponseWriter, r *http.Request) {
-	_, err := r.Cookie("username")
+	cookie, err := r.Cookie("id")
 	if err == nil {
-		http.Redirect(w, r, "/main", http.StatusFound)
-		return
+		if d.CheckUser(cookie.Value) {
+			http.Redirect(w, r, "/main", http.StatusFound)
+			return
+		}
 	}
 	tmpl := template.Must(template.ParseFiles("view/authentication/errlogin.html"))
 	err = tmpl.Execute(w, nil)
@@ -205,4 +242,80 @@ func ErrorRegistrHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+}
+
+func StartConfirmHandler(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("user")
+	if err != nil {
+		http.Redirect(w, r, "/", http.StatusFound)
+		return
+	}
+	encodedUserJSON := cookie.Value
+	decodedUserJSON, err := url.QueryUnescape(encodedUserJSON)
+	if err != nil {
+		http.Redirect(w, r, "/", http.StatusFound)
+		return
+	}
+
+	var user User
+	err = json.Unmarshal([]byte(decodedUserJSON), &user)
+	if err != nil {
+		http.Redirect(w, r, "/", http.StatusFound)
+		return
+	}
+
+	d.Send(user.Email)
+	tmpl := template.Must(template.ParseFiles("view/authentication/confirm.html"))
+	err = tmpl.Execute(w, nil)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func ConfirmHandler(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("user")
+	if err != nil {
+		http.Redirect(w, r, "/", http.StatusFound)
+		return
+	}
+
+	encodedUserJSON := cookie.Value
+	decodedUserJSON, err := url.QueryUnescape(encodedUserJSON)
+	if err != nil {
+		http.Redirect(w, r, "/", http.StatusFound)
+		return
+	}
+
+	var user User
+	err = json.Unmarshal([]byte(decodedUserJSON), &user)
+	if err != nil {
+		http.Redirect(w, r, "/", http.StatusFound)
+		return
+	}
+
+	code := r.FormValue("code")
+
+	if d.CheckUserCode(user.Email, code) {
+		id := d.Append(user.Email, user.Password, user.Username)
+		http.SetCookie(w, &http.Cookie{
+			Name:     "id",
+			Value:    id,
+			Expires:  time.Now().Add(168 * time.Hour),
+			Path:     "/",
+			HttpOnly: true,
+		})
+
+		http.SetCookie(w, &http.Cookie{
+			Name:     "user",
+			Value:    "",
+			Expires:  time.Now().Add(-1 * time.Hour),
+			Path:     "/",
+			HttpOnly: true,
+		})
+
+		http.Redirect(w, r, "/main", http.StatusFound)
+		return
+	}
+	http.Redirect(w, r, "/conf", http.StatusFound)
+
 }

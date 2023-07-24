@@ -14,7 +14,7 @@ type PData struct {
 	MyTitle  string
 	MyText1  string
 	MyText2  string
-	Email    string
+	Id       string
 }
 
 var host string = "http://localhost:8081"
@@ -41,7 +41,7 @@ func Check(email, pass string) int {
 	return result
 }
 
-func Append(email, pass, name string) {
+func Append(email, pass, name string) string {
 	data := map[string]string{"email": email, "pass": pass, "name": name}
 	jsonData, err := json.Marshal(data)
 	if err != nil {
@@ -53,10 +53,18 @@ func Append(email, pass, name string) {
 		log.Println(err)
 	}
 	defer resp.Body.Close()
+
+	var result string
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	if err != nil {
+		log.Println(err)
+	}
+
+	return result
 }
 
-func PageData(email string) PData {
-	data := map[string]string{"email": email}
+func PageData(id string) PData {
+	data := map[string]string{"id": id}
 	jsonData, err := json.Marshal(data)
 	if err != nil {
 		log.Println(err)
@@ -77,8 +85,8 @@ func PageData(email string) PData {
 	return result
 }
 
-func WData(email string) []string {
-	data := map[string]string{"email": email}
+func WData(id string) []string {
+	data := map[string]string{"id": id}
 	jsonData, err := json.Marshal(data)
 	if err != nil {
 		log.Println(err)
@@ -91,6 +99,85 @@ func WData(email string) []string {
 	defer resp.Body.Close()
 
 	var result []string
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	if err != nil {
+		log.Println(err)
+	}
+
+	return result
+}
+
+func CheckUser(id string) bool {
+	data := map[string]string{"id": id}
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		log.Println(err)
+	}
+
+	resp, err := http.Post(host+"/checkuser", "application/json", bytes.NewBuffer(jsonData))
+	if err != nil {
+		log.Println(err)
+	}
+	defer resp.Body.Close()
+
+	var result bool
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	if err != nil {
+		log.Println(err)
+	}
+
+	return result
+}
+
+func CheckUserCode(email, code string) bool {
+	data := map[string]string{"email": email, "code": code}
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		log.Println(err)
+	}
+
+	resp, err := http.Post(host+"/confirm", "application/json", bytes.NewBuffer(jsonData))
+	if err != nil {
+		log.Println(err)
+	}
+	defer resp.Body.Close()
+
+	var result bool
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	if err != nil {
+		log.Println(err)
+	}
+
+	return result
+}
+
+func Send(email string) {
+	data := map[string]string{"email": email}
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		log.Println(err)
+	}
+
+	_, err = http.Post(host+"/send", "application/json", bytes.NewBuffer(jsonData))
+	if err != nil {
+		log.Println(err)
+	}
+}
+
+func GetId(email string) string {
+	data := map[string]string{"email": email}
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		log.Println(err)
+	}
+
+	resp, err := http.Post(host+"/getid", "application/json", bytes.NewBuffer(jsonData))
+	if err != nil {
+		log.Println(err)
+	}
+	defer resp.Body.Close()
+
+	var result string
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	if err != nil {
 		log.Println(err)
