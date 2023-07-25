@@ -33,12 +33,16 @@ func Start(port string) {
 	// Page with tagged jokes
 	mux.HandleFunc("/w", h.WHandler)
 
+	// login error
 	mux.HandleFunc("/errorlogin", h.ErrorLoginHandler)
 
+	// registration error
 	mux.HandleFunc("/errorregistr", h.ErrorRegistrHandler)
 
+	// start of mail confirmation
 	mux.HandleFunc("/conf", h.StartConfirmHandler)
 
+	// end of mail confirmation
 	mux.HandleFunc("/confirm", h.ConfirmHandler)
 
 	http.ListenAndServe(port, mux)
