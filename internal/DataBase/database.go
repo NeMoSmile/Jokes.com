@@ -17,7 +17,7 @@ type PData struct {
 	Id       string
 }
 
-var host string = "http://localhost:8081"
+var host string = "http://149.154.71.182:8081"
 
 func Check(email, pass string) int {
 	data := map[string]string{"email": email, "pass": pass}
